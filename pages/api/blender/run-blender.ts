@@ -46,12 +46,33 @@ bpy.context.scene.render.image_settings.file_format = 'PNG'
 
 # Effectuer le rendu
 bpy.ops.render.render(write_still=True)
+`;
 
-print(f"✅ Rendu terminé, image enregistrée à : {output_path}")
+const updatedScript = `
+import bpy
+import bmesh
+
+# Vérifier si l'objet est en mode édition
+obj = bpy.context.object
+
+# Passer en mode édition si nécessaire
+if obj.mode != 'EDIT':
+    bpy.ops.object.mode_set(mode='EDIT')
+
+# Assurer que la table des indices des sommets soit mise à jour
+bm = bmesh.from_edit_mesh(obj.data)
+bm.verts.ensure_lookup_table()  # Important pour mettre à jour les indices des sommets
+
+# Revenir en mode objet après la modification
+bpy.ops.object.mode_set(mode='OBJECT')
+
+# Ajouter le script utilisateur ici
+${scriptOnly}
 `;
 
   // Fusionner le script reçu avec le code de rendu
-  const finalScript = scriptOnly + "\n" + renderCode;
+/*   const finalScript = scriptOnly + "\n" + renderCode; */
+const finalScript = updatedScript + "\n" + renderCode;
 
   try {
     console.log(`📝 Sauvegarde du script dans ${scriptPath}`);

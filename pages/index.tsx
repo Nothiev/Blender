@@ -13,6 +13,7 @@ export default function Home() {
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [imageDescription, setImageDescription] = useState<string>("");
   const [shouldRegenerate, setShouldRegenerate] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const compareDescriptions = async (userDescription: string, imageDesc: string) => {
     const response = await fetch("/api/description-rendu/compare-description", {
@@ -26,6 +27,7 @@ export default function Home() {
   };
 
   const generateScript = async () => {
+    setIsLoading(true);
     const response = await fetch("/api/generated-script/codestral", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -111,6 +113,7 @@ export default function Home() {
         if (similarity < 0.7) {
           setShouldRegenerate(true);
         }
+        setIsLoading(false);
       });
     }
   }, [imageDescription]);
@@ -144,8 +147,15 @@ export default function Home() {
             <Button
               onClick={generateScript}
               className="mt-4 cursor-pointer"
+              disabled={isLoading}  // Désactiver le bouton pendant le chargement
             >
-              Générer
+              {isLoading ? (
+                <span className="flex items-center">
+                  <span className="animate-spin mr-2">🔄</span> Génération...
+                </span>
+              ) : (
+                "Générer"
+              )}
             </Button>
           </CardContent>
         </Card>
